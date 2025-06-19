@@ -63,3 +63,29 @@ Ensured material instance is created from base material in C++, not from editor 
 ### Projectile-damage communication:
 
 Carefully ensured UGameplayStatics::ApplyDamage() properly reaches BoxActor.
+
+
+##  Files & Structure
+
+###  Core Logic
+| File | Description |
+|------|-------------|
+| `BoxActor.cpp/.h` | Represents each box, handles color, health, score |
+| `BoxDataFetcher.cpp/.h` | Fetches and parses JSON from URL |
+| `BoxManager.cpp/.h` | Spawns boxes from parsed data |
+| `BoxDataTypes.h` | Defines JSON struct types |
+
+###  Gameplay Integration
+| File | Description |
+|------|-------------|
+| `ShooterCharacter.cpp/.h` | Handles firing, weapon switching |
+| `ShooterWeapon.cpp/.h` | Fires projectiles, manages cooldown |
+| `ShooterProjectile.cpp/.h` | Detects collision and applies damage |
+| `FPSBoxShooterPlayerController.cpp/.h` | Adds score, manages HUD widget |
+
+### UI
+| File | Description |
+|------|-------------|
+| `ShooterBulletCounterUI.cpp/.h` | UUserWidget class (C++) |
+| `BP_ShooterBulletCounterUI` | Blueprint widget showing ammo + score |
+| `BP_ShooterPlayerController` | Blueprint inheriting from `FPSBoxShooterPlayerController` |
