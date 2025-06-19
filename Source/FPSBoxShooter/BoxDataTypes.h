@@ -1,9 +1,11 @@
-// BoxDataTypes.h
 #pragma once
 
 #include "CoreMinimal.h"
 #include "BoxDataTypes.generated.h"
-
+/**
+ * Represents the type definition of a box from the JSON data.
+ * Includes its visual and gameplay properties: name, color, health, and score.
+ */
 USTRUCT(BlueprintType)
 struct FBoxType
 {
@@ -22,6 +24,10 @@ struct FBoxType
     int32 Score;
 };
 
+/**
+ * Transform data for spawning a box.
+ * Includes location, rotation (in degrees), and scale.
+ */
 USTRUCT(BlueprintType)
 struct FBoxTransform
 {
@@ -36,7 +42,10 @@ struct FBoxTransform
     UPROPERTY()
     FVector Scale;
 };
-
+/**
+ * Represents an individual box instance to be spawned in the world.
+ * Refers to a type name (matched with FBoxType) and has its own transform.
+ */
 USTRUCT(BlueprintType)
 struct FBoxObject
 {

@@ -7,26 +7,25 @@
 ABoxActor::ABoxActor()
 {
     PrimaryActorTick.bCanEverTick = false;
-
+    // Create and set root component as a static mesh
     BoxMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BoxMesh"));
     RootComponent = BoxMesh;
-
+    // Load and assign the default cube mesh
     static ConstructorHelpers::FObjectFinder<UStaticMesh> BoxMeshAsset(TEXT("/Engine/BasicShapes/Cube.Cube"));
     if (BoxMeshAsset.Succeeded())
     {
         BoxMesh->SetStaticMesh(BoxMeshAsset.Object);
     }
-
-    // Set default material (will override with dynamic later)
+     // Load the base material which supports a "Color" parameter
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialAsset(TEXT("/Game/BoxShooter/M_BoxMaterial.M_BoxMaterial"));
     if (MaterialAsset.Succeeded())
     {
         BaseMaterial = MaterialAsset.Object;
     }
 }
-
-// BoxActor.cpp
-
+/**
+ * Initializes the box’s gameplay properties and sets its color using a dynamic material.
+ */
 void ABoxActor::InitializeBox(const FBoxType& BoxData)
 {
 	Health = BoxData.Health;
@@ -37,11 +36,13 @@ void ABoxActor::InitializeBox(const FBoxType& BoxData)
         return;
     }
 
-    // Create dynamic material from M_BoxMaterial
+    // Create a dynamic material so we can change color at runtime
     UMaterialInstanceDynamic* DynMat = UMaterialInstanceDynamic::Create(BaseMaterial, this);
     if (DynMat)
     {
+        // Set the color parameter from the JSON-provided value
         DynMat->SetVectorParameterValue(FName("Color"), BoxData.Color);
+        // Apply the dynamic material to the box mesh
         BoxMesh->SetMaterial(0, DynMat);
 
         UE_LOG(LogTemp, Log, TEXT("Set box color to: %s"), *BoxData.Color.ToString());
@@ -51,7 +52,9 @@ void ABoxActor::InitializeBox(const FBoxType& BoxData)
         UE_LOG(LogTemp, Error, TEXT("Failed to create dynamic material!"));
     }
 }
-
+/**
+ * Applies damage to the box. If health falls to 0, the box is destroyed and score is added.
+ */
 void ABoxActor::ApplyDamage(int32 Damage)
 {
     Health -= Damage;
@@ -61,12 +64,10 @@ void ABoxActor::ApplyDamage(int32 Damage)
     if (Health <= 0)
     {
         UE_LOG(LogTemp, Warning, TEXT("Box destroyed. ScoreValue = %d"), ScoreValue);
-
-        // 🔍 DEBUG: Check what controller we’re getting
+        // Try to get the player controller to add score
         APlayerController* PC = GetWorld()->GetFirstPlayerController();
         UE_LOG(LogTemp, Warning, TEXT("Got Controller: %s"), *GetNameSafe(PC));
 
-        // 🔧 Try casting it to your custom controller
         if (PC && PC->IsA(AFPSBoxShooterPlayerController::StaticClass()))
 		{
 			AFPSBoxShooterPlayerController* ShooterPC = static_cast<AFPSBoxShooterPlayerController*>(PC);
@@ -77,7 +78,8 @@ void ABoxActor::ApplyDamage(int32 Damage)
 		{
 			UE_LOG(LogTemp, Error, TEXT("IsA check failed for ShooterPlayerController"));
 		}
-        Destroy(); // remove box
+        // Remove the box from the world
+        Destroy();
     }
 }
 
